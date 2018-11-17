@@ -3,12 +3,19 @@
 (defconstant *praznoPolje* '-)
 (defconstant *nevalidno* '0)
 
+(defconstant *prviIgrac* 'X)
+(defconstant *drugiIgrac* 'O)
+
 ;; n je dimenzija table
 (defvar *n* )
 ;; dimenzija matrice
 (defvar *dimenzijaMatrice*)
 ;; tabla
 (defvar *tabla*)
+
+;;human and computer
+(defvar *human*)
+(defvar *computer*)
 ;;///////////////////////////////////////////////////////////////////
 
 ;;Generisanje uzastopnih istih elemenata
@@ -74,7 +81,16 @@
   (let* ((slovo (read-char)) (i (- (char-code slovo) 65)) (j (read)))
     (cond ((not (equalp (nth j (nth i *tabla*)) '-)) (format t "~%Pogresan unos!") (odigrajPotez igrac))
           (t (setq *tabla* (postavi igrac i j *tabla*))))
-          ))
+    ))
+
+(defun izaberiIgraca()
+  (format t "~%Unesite h/c za prvog igraca human/computer:")
+  (let* ((player (read)))
+    (cond ((not (or(equalp player 'h) (equalp player 'c))) (format t "~%Pogresan unos!") (izaberiIgraca))
+          ((equalp player 'h) (setq *human* *prviIgrac*) (setq *computer* *drugiIgrac*))
+          (t(setq *human* *drugiIgrac*) (setq *computer* *prviIgrac*))
+          )))
+
 (igra)
 (odigrajPotez 'X)
 (stampajTablu *tabla* '0)
