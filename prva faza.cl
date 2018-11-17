@@ -6,7 +6,17 @@
 (defvar *dimenzijaMatrice*)                  ;; dimenzija matrice/table
 (defvar *tabla*)                             ;; promenljiva koja cuva tablu
 
+(defconstant *prviIgrac* 'X)
+(defconstant *drugiIgrac* 'O)
+
+
+;;human and computer
+(defvar *human*)
+(defvar *computer*)
+;;///////////////////////////////////////////////////////////////////
+
 ;;Generisanje matrice *********************************************************************************************************************************************************
+
 
 ;;Generisanje uzastopnih istih elemenata
 (defun generisiClanove (element broj)
@@ -88,12 +98,23 @@
   (let* ((slovo (read-char)) (i (- (char-code slovo) 65)) (j (read)))
     (cond ((not (equalp (nth j (nth i *tabla*)) '-)) (format t "~%Pogresan unos!") (odigrajPotez igrac))
           (t (setq *tabla* (postavi igrac i j *tabla*))))
-          ))
+    ))
+
+(defun izaberiIgraca()
+  (format t "~%Unesite h/c za prvog igraca human/computer:")
+  (let* ((player (read)))
+    (cond ((not (or(equalp player 'h) (equalp player 'c))) (format t "~%Pogresan unos!") (izaberiIgraca))
+          ((equalp player 'h) (setq *human* *prviIgrac*) (setq *computer* *drugiIgrac*))
+          (t(setq *human* *drugiIgrac*) (setq *computer* *prviIgrac*))
+          )))
+          
 
 ;;Pozivi funkcija ***************************************************************************************************************************************************************
 
 (igra)
-(odigrajPotez 'X)
+(izaberiIgraca)
+(odigrajPotez *computer*)
+(odigrajPotez *human*)
 (stampajTablu *tabla* '-1)
 
 
