@@ -1,13 +1,13 @@
-;;definisanje promenljivih ****************************************************************************************************************************************************
+;;variable and constant definitions ****************************************************************************************************************************************************
 
-(defconstant *praznoPolje* '-)
-(defconstant *nevalidnoPolje* '0)
-(defvar *n* )                                ;; n je dimenzija table
-(defvar *dimenzijaMatrice*)                  ;; dimenzija matrice/table
-(defvar *tabla*)                             ;; promenljiva koja cuva tablu
+(defconstant *emptyField* '-)
+(defconstant *invalidField* '0)
+(defvar *n* )                                ;; n is the board dimension
+(defvar *matrixDim*)                         ;; matrix dimension
+(defvar *board*)                             ;; stores the board matrix
 
-(defconstant *prviIgrac* 'X)
-(defconstant *drugiIgrac* 'O)
+(defconstant *firstPlayer* 'X)
+(defconstant *secondPlayer* 'O)
 
 
 ;;human and computer
@@ -15,107 +15,102 @@
 (defvar *computer*)
 ;;///////////////////////////////////////////////////////////////////
 
-;;Generisanje matrice *********************************************************************************************************************************************************
+;;Matrix generating *********************************************************************************************************************************************************
 
 
-;;Generisanje uzastopnih istih elemenata
-(defun generisiClanove (element broj)
-  (cond ( (zerop broj) '() )
-        ( t (cons element (generisiClanove element (- broj 1))) )
+;;Generates a list with same elements
+(defun generateMembers (element count)
+  (cond ( (zerop count) '() )
+        ( t (cons element (generateMembers element (- count 1))) )
         ))
 
-;;Generisanje jednog reda u matrici
-(defun generisiRed (prvi brojPrvi drugi brojDrugi)
-  (append (generisiClanove prvi brojPrvi) (generisiClanove drugi brojDrugi)))
+;;Generates one row of the matrix
+(defun generateRow (firstMember firstCount secondMember secondCount)
+  (append (generateMembers firstMember firstCount) (generateMembers secondMember secondCount)))
 
-;;Generisanje cele matrice
-(defun generisi (dim prviBroj drugiBroj donjiDeo )
+;;Generates the whole matrix
+(defun generateMatrix (firstCount secondCount lowerPart )
   (cond 
-   ( (and donjiDeo (= prviBroj *n*)) '())
-   ( (= dim (- prviBroj 1)) (generisi dim (+ drugiBroj 2) (- prviBroj 2) t ))
-   ( (null donjiDeo)  (cons (generisiRed  *praznoPolje* prviBroj *nevalidnoPolje* drugiBroj) 
-                      (generisi dim (+ 1 prviBroj) (- drugiBroj 1 ) donjiDeo)))
-    (t(cons (generisiRed *nevalidnoPolje*  prviBroj *praznoPolje*  drugiBroj) 
-                      (generisi dim (+ 1 prviBroj) (- drugiBroj 1 ) donjiDeo)))
+   ( (and lowerPart (= firstCount *n*)) '())
+   ( (= *matrixDim* (- firstCount 1)) (generateMatrix *matrixDim* (+ secondCount 2) (- firstCount 2) t ))
+   ( (null lowerPart)  (cons (generateRow  *emptyField* firstCount *invalidField* secondCount) 
+                      (generateMatrix *matrixDim* (+ 1 firstCount) (- secondCount 1 ) lowerPart)))
+    (t(cons (generateRow *invalidField*  firstCount *emptyField*  secondCount) 
+                      (generateMatrix *matrixDim* (+ 1 firstCount) (- secondCount 1 ) lowerPart)))
    ))
 
-;;Ucitavanje dimenzija i pocetak igre *****************************************************************************************************************************************
+;;Dimension input and start of the game *****************************************************************************************************************************************
 
-;;Ucitavanje dimenzija i postavljanje table 
-(defun postaviDimenzije ()
-  (format t "~%Unesite dimenziju table: ")
+;;Dimension input and initial matrix state 
+(defun setDimension ()
+  (format t "~%Input the board dimension: ")
   (let ((input (read)))
     (cond 
-     ( (or (not (numberp input)) (< input 1) (> input 10)) (format t "~%Pogresan unos dimenzije!") (postaviDimenzije) )
+     ( (or (not (numberp input)) (< input 1) (> input 10)) (format t "~%Invalid dimension input!") (setDimension) )
      ( t 
       (setq *n* input) 
-      (setq *dimenzijaMatrice* (- (* 2 *n*) 1))
-      (setq *tabla* (generisi *dimenzijaMatrice* *n* (- *n* 1) '()))
+      (setq *matrixDim* (- (* 2 *n*) 1))
+      (setq *board* (generateMatrix *matrixDim* *n* (- *n* 1) '()))
       ))))
 
-(defun igra ()
-  (postaviDimenzije)
-  (format t "~%~{~{~a~^ ~}~%~}" *tabla*))
+;;Board display ***************************************************************************************************************************************************************
 
-;;Stampanje table ***************************************************************************************************************************************************************
-
-;;Stampa newline i prvi red matrice
-(defun stampajPrviRed (brojac)                                                                           
+;;Print newline and first row with numbers
+(defun printFirstRow (count)                                                                           
   (cond
-   ((equalp brojac -1) (format t "~%") (stampajPrviRed 0))                                                          ;stampanje newline za celu matricu
-   ((equalp brojac (+ '2 *dimenzijaMatrice*)) '())                                                                  ;kraj                                                
-   ((< brojac (+ *n* '1)) (format t " ") (stampajPrviRed (+ brojac '1)))                                            ;stampanje razmaka - n+1 puta                                  
-   (t (format t "~a " (- brojac *n* 1)) (stampajPrviRed (+ brojac '1)))))                                           ;stampanje brojeva - n puta
+   ((equalp count -1) (format t "~%") (printFirstRow 0))                                                        ;print newline for the entire matrix
+   ((equalp count (+ '2 *matrixDim*)) '())                                                                      ;end                                                
+   ((< count (+ *n* '1)) (format t " ") (printFirstRow (+ count '1)))                                           ;print space - n+1 times                                  
+   (t (format t "~a " (- count *n* 1)) (printFirstRow (+ count '1)))))                                          ;print numbers - n times
 
-;;Stampa newline i svaki red matrice osim prvog 
-(defun stampajRed (lista brojac indexReda)
+;;Prints newline and all rows except the first one 
+(defun printRow (rowList count rowIndex)
   (cond 
-   ((= brojac '-1) (format t "~%~a " (code-char (+ 65 indexReda))) (stampajRed lista '0 indexReda))                 ;prvi el = newline + slovo
-   ((= brojac *dimenzijaMatrice*) (if (< indexReda (- *n* 1)) (format t "~a" (+ indexReda *n*)) '()))               ;posl el broj se stampa samo za gornju 1/2 matrice
-   ((equalp (car lista) '0) (format t " ") (stampajRed (cdr lista) (+ brojac 1) indexReda))                         ;nule se pretvaraju u blanko
-   (t (format t "~a " (car lista)) (stampajRed (cdr lista) (+ brojac 1) indexReda ))))                              ;elementi se stampaju kao element + blanko
+   ((= count '-1) (format t "~%~a " (code-char (+ 65 rowIndex))) (printRow rowList '0 rowIndex))                ;first el = newline + rowChar
+   ((= count *matrixDim*) (if (< rowIndex (- *n* 1)) (format t "~a" (+ rowIndex *n*)) '()))                     ;last el number is printed only for the upper half
+   ((equalp (car rowList) '0) (format t " ") (printRow (cdr rowList) (+ count 1) rowIndex))                     ;zeros are printed as blanks
+   (t (format t "~a " (car rowList)) (printRow (cdr rowList) (+ count 1) rowIndex ))))                          ;elements are printed out as element + blank
 
-;;Stampa celu tablu
-(defun stampajTablu (tabla red)
+;;Print entire board
+(defun printBoard (board row)
   (cond 
-   ((null tabla) (format t "~%"))                                                                                   ;kraj
-   ((= red -1) (stampajPrviRed -1) (stampajTablu tabla 0))                                                          ;newline + prvi red
-   ((>= red *n*) (stampajRed (car tabla) '-1 red) (stampajTablu (cdr tabla) (+ red 1)))                             ;za donju 1/2 table saljemo direkt        
-   (t(stampajRed(append (member '0 (car tabla)) (car tabla)) '-1 red) (stampajTablu (cdr tabla) (+ red 1)))))       ;za gornju 1/2 table premestamo nule ispred
+   ((null board) (format t "~%"))                                                                               ;end
+   ((= row -1) (printFirstRow -1) (printBoard board 0))                                                         ;newline + first row
+   ((>= row *n*) (printRow (car board) '-1 row) (printBoard (cdr board) (+ row 1)))                             ;directly applied for bottom half        
+   (t(printRow(append (member '0 (car board)) (car board)) '-1 row) (printBoard (cdr board) (+ row 1)))))       ;zeros are put in the front for the upper half
 
-;; Igranje poteza **************************************************************************************************************************************************************
+;; Play move **************************************************************************************************************************************************************
 
-(defun postavi (el i j lista)
+(defun setElement (el i j matrix)
   (cond 
-   ((null lista) '())
-        ((> i '0) (cons (car lista) (postavi el (- i 1) j (cdr lista))))
-        ((equalp i '0) (cons (postavi el (- i 1) j (car lista)) (cdr lista)))
-        ((equalp j '0) (cons el (postavi el i (- j 1) (cdr lista))))
-        (t(cons (car lista) (postavi el (- i 1) (- j 1) (cdr lista))))))
+   ((null matrix) '())
+        ((> i '0) (cons (car matrix) (setElement el (- i 1) j (cdr matrix))))
+        ((equalp i '0) (cons (setElement el (- i 1) j (car matrix)) (cdr matrix)))
+        ((equalp j '0) (cons el (setElement el i (- j 1) (cdr matrix))))
+        (t(cons (car matrix) (setElement el (- i 1) (- j 1) (cdr matrix))))))
 
-(defun odigrajPotez (igrac)
-  (format t "~%Unesite slovo za red pa enter i broj za kolonu pa enter: ")
-  (let* ((slovo (read-char)) (i (- (char-code slovo) 65)) (j (read)))
-    (cond ((not (equalp (nth j (nth i *tabla*)) '-)) (format t "~%Pogresan unos!") (odigrajPotez igrac))
-          (t (setq *tabla* (postavi igrac i j *tabla*))))
+(defun playMove (player)
+  (format t "~%Enter a character for the row and number for the column: ")
+  (let* ((rowChar (read-char)) (i (- (char-code rowChar) 65)) (j (read)))
+    (cond ((not (equalp (nth j (nth i *board*)) '-)) (format t "~%Invalid input!") (playMove player))
+          (t (setq *board* (setElement player i j *board*))))
     ))
 
-(defun izaberiIgraca()
-  (format t "~%Unesite h/c za prvog igraca human/computer:")
+(defun choosePlayer()
+  (format t "~%Enter h/c for the first player human/computer:")
   (let* ((player (read)))
-    (cond ((not (or(equalp player 'h) (equalp player 'c))) (format t "~%Pogresan unos!") (izaberiIgraca))
-          ((equalp player 'h) (setq *human* *prviIgrac*) (setq *computer* *drugiIgrac*))
-          (t(setq *human* *drugiIgrac*) (setq *computer* *prviIgrac*))
+    (cond ((not (or (equalp player 'h) (equalp player 'c))) (format t "~%Invalid input!") (choosePlayer))
+          ((equalp player 'h) (setq *human* *firstPlayer*) (setq *computer* *secondPlayer*))
+          (t(setq *human* *secondPlayer*) (setq *computer* *firstPlayer*))
           )))
           
 
-;;Pozivi funkcija ***************************************************************************************************************************************************************
+;;Function calls ***************************************************************************************************************************************************************
 
-(igra)
-(izaberiIgraca)
-(odigrajPotez *computer*)
-(odigrajPotez *human*)
-(stampajTablu *tabla* '-1)
+(choosePlayer)
+(playMove *computer*)
+(playMove *human*)
+(printBoard *board* '-1)
 
 
 
