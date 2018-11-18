@@ -3,15 +3,20 @@
 (defconstant *emptyField* '-)
 (defconstant *invalidField* '0)
 (defvar *n* )                                ;; n is the board dimension
+(setq *n* '())
 (defvar *matrixDim*)                         ;; matrix dimension
+(setq *matrixDim* '())
 (defvar *board*)                             ;; stores the board matrix
+(setq *board* '())
 
 (defconstant *firstPlayer* 'X)
 (defconstant *secondPlayer* 'O)
 
 ;;human and computer
 (defvar *human*)
+(setq *human* '())
 (defvar *computer*)
+(setq *compuer* '())
 
 ;;Matrix generating *********************************************************************************************************************************************************
 
@@ -117,10 +122,13 @@
 (setDimension)
 (choosePlayer)
 
-;;Because of use of global variables, it is necessary to set the dimension before calling these functions
+;;Because of use of global variables, it is necessary to set the dimension before calling this function
+(printBoard)
+
+;;Because of use of global variables, it is necessary to choose the first player before calling this function
 (playMove *computer*)
 (playMove *human*)
-(printBoard)
+
 
 
 
