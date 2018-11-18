@@ -16,7 +16,7 @@
 (defvar *human*)
 (setq *human* '())
 (defvar *computer*)
-(setq *compuer* '())
+(setq *computer* '())
 
 ;;Matrix generating *********************************************************************************************************************************************************
 
@@ -100,12 +100,17 @@
         ((> i '0) (cons (car matrix) (setElement el (- i 1) j (cdr matrix))))
         ((equalp i '0) (cons (setElement el (- i 1) j (car matrix)) (cdr matrix)))
         ((equalp j '0) (cons el (setElement el i (- j 1) (cdr matrix))))
-        (t(cons (car matrix) (setElement el (- i 1) (- j 1) (cdr matrix))))))
+   (t(cons (car matrix) (setElement el (- i 1) (- j 1) (cdr matrix))))))
+
+(defun validateMove(i j)
+  (cond
+   ((or (< i '0) (< j '0)) '())
+   (t(equalp (nth j (nth i *board*)) *emptyField*))))
 
 (defun playMove (player)
   (format t "~%Enter a character for the row and number for the column: ")
   (let* ((rowChar (read-char)) (i (- (char-code rowChar) 65)) (j (read)))
-    (cond ((not (equalp (nth j (nth i *board*)) '-)) (format t "~%Invalid input!") (playMove player))
+    (cond ((not(validateMove i j)) (format t "~%Invalid input!") (playMove player))
           (t (setq *board* (setElement player i j *board*))))
     ))
 
@@ -129,6 +134,7 @@
 (playMove *computer*)
 (playMove *human*)
 
+(printBoard)
 
 
 
