@@ -9,11 +9,9 @@
 (defconstant *firstPlayer* 'X)
 (defconstant *secondPlayer* 'O)
 
-
 ;;human and computer
 (defvar *human*)
 (defvar *computer*)
-;;///////////////////////////////////////////////////////////////////
 
 ;;Matrix generating *********************************************************************************************************************************************************
 
@@ -32,14 +30,15 @@
 (defun generateMatrix (firstCount secondCount lowerPart )
   (cond 
    ( (and lowerPart (= firstCount *n*)) '())
-   ( (= *matrixDim* (- firstCount 1)) (generateMatrix *matrixDim* (+ secondCount 2) (- firstCount 2) t ))
+   ( (= *matrixDim* (- firstCount 1)) (generateMatrix (+ secondCount 2) (- firstCount 2) t ))
    ( (null lowerPart)  (cons (generateRow  *emptyField* firstCount *invalidField* secondCount) 
-                      (generateMatrix *matrixDim* (+ 1 firstCount) (- secondCount 1 ) lowerPart)))
+                      (generateMatrix (+ 1 firstCount) (- secondCount 1 ) lowerPart)))
     (t(cons (generateRow *invalidField*  firstCount *emptyField*  secondCount) 
-                      (generateMatrix *matrixDim* (+ 1 firstCount) (- secondCount 1 ) lowerPart)))
+                      (generateMatrix (+ 1 firstCount) (- secondCount 1 ) lowerPart)))
    ))
 
 ;;Dimension input and start of the game *****************************************************************************************************************************************
+
 
 ;;Dimension input and initial matrix state 
 (defun setDimension ()
@@ -50,36 +49,45 @@
      ( t 
       (setq *n* input) 
       (setq *matrixDim* (- (* 2 *n*) 1))
-      (setq *board* (generateMatrix *matrixDim* *n* (- *n* 1) '()))
+      (setq *board* (generateMatrix *n* (- *n* 1) '()))
       ))))
 
 ;;Board display ***************************************************************************************************************************************************************
 
+
 ;;Print newline and first row with numbers
 (defun printFirstRow (count)                                                                           
   (cond
-   ((equalp count -1) (format t "~%") (printFirstRow 0))                                                        ;print newline for the entire matrix
-   ((equalp count (+ '2 *matrixDim*)) '())                                                                      ;end                                                
-   ((< count (+ *n* '1)) (format t " ") (printFirstRow (+ count '1)))                                           ;print space - n+1 times                                  
-   (t (format t "~a " (- count *n* 1)) (printFirstRow (+ count '1)))))                                          ;print numbers - n times
+   ((equalp count -1) (format t "~%") (printFirstRow 0))                                                                ;print newline for the entire matrix
+   ((equalp count (+ '2 *matrixDim*)) '())                                                                              ;end                                                
+   ((< count (+ *n* '1)) (format t " ") (printFirstRow (+ count '1)))                                                   ;print space - n+1 times                                  
+   (t (format t "~a " (- count *n* 1)) (printFirstRow (+ count '1)))))                                                  ;print numbers - n times
 
 ;;Prints newline and all rows except the first one 
 (defun printRow (rowList count rowIndex)
   (cond 
-   ((= count '-1) (format t "~%~a " (code-char (+ 65 rowIndex))) (printRow rowList '0 rowIndex))                ;first el = newline + rowChar
-   ((= count *matrixDim*) (if (< rowIndex (- *n* 1)) (format t "~a" (+ rowIndex *n*)) '()))                     ;last el number is printed only for the upper half
-   ((equalp (car rowList) '0) (format t " ") (printRow (cdr rowList) (+ count 1) rowIndex))                     ;zeros are printed as blanks
-   (t (format t "~a " (car rowList)) (printRow (cdr rowList) (+ count 1) rowIndex ))))                          ;elements are printed out as element + blank
+   ((= count '-1) (format t "~%~a " (code-char (+ 65 rowIndex))) (printRow rowList '0 rowIndex))                         ;first el = newline + rowChar
+   ((= count *matrixDim*) (if (< rowIndex (- *n* 1)) (format t "~a" (+ rowIndex *n*)) '()))                              ;last el number is printed only for the upper half
+   ((equalp (car rowList) '0) (format t " ") (printRow (cdr rowList) (+ count 1) rowIndex))                              ;zeros are printed as blanks
+   (t (format t "~a " (car rowList)) (printRow (cdr rowList) (+ count 1) rowIndex ))))                                   ;elements are printed out as element + blank
 
-;;Print entire board
-(defun printBoard (board row)
+;;Print entire board 
+(defun printBoardRecursive (board row)
   (cond 
-   ((null board) (format t "~%"))                                                                               ;end
-   ((= row -1) (printFirstRow -1) (printBoard board 0))                                                         ;newline + first row
-   ((>= row *n*) (printRow (car board) '-1 row) (printBoard (cdr board) (+ row 1)))                             ;directly applied for bottom half        
-   (t(printRow(append (member '0 (car board)) (car board)) '-1 row) (printBoard (cdr board) (+ row 1)))))       ;zeros are put in the front for the upper half
+   ((null board) (format t "~%"))                                                                                        ;end
+   ((= row -1) (printFirstRow -1) (printBoardRecursive board 0))                                                         ;newline + first row
+   ((>= row *n*) (printRow (car board) '-1 row) (printBoardRecursive (cdr board) (+ row 1)))                             ;directly applied for bottom half        
+   (t(printRow(append (member '0 (car board)) (car board)) '-1 row) (printBoardRecursive (cdr board) (+ row 1)))))       ;zeros are put in the front for the upper half
+
+;;Caller function for printBoardRecursive
+(defun printBoard ()
+  (cond
+   ((or (null *n*) (null *matrixDim*) (null *board*)) (format t "Please set dimensions before attempting to print."))
+   (t (printBoardRecursive *board* -1))
+   ))
 
 ;; Play move **************************************************************************************************************************************************************
+
 
 (defun setElement (el i j matrix)
   (cond 
@@ -104,13 +112,15 @@
           (t(setq *human* *secondPlayer*) (setq *computer* *firstPlayer*))
           )))
           
+;;Function calls  - Test functions here ***************************************************************************************************************************************
 
-;;Function calls ***************************************************************************************************************************************************************
-
+(setDimension)
 (choosePlayer)
+
+;;Because of use of global variables, it is necessary to set the dimension before calling these functions
 (playMove *computer*)
 (playMove *human*)
-(printBoard *board* '-1)
+(printBoard)
 
 
 
