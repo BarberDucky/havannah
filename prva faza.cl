@@ -1,22 +1,28 @@
 ;;variable and constant definitions ****************************************************************************************************************************************************
 
+
+(defconstant *firstPlayer* 'X)
+(defconstant *secondPlayer* 'O)
 (defconstant *emptyField* '-)
 (defconstant *invalidField* '0)
+
 (defvar *n* )                                ;; n is the board dimension
 (setq *n* '())
 (defvar *matrixDim*)                         ;; matrix dimension
 (setq *matrixDim* '())
 (defvar *board*)                             ;; stores the board matrix
 (setq *board* '())
+(defvar *currentPlayer*)
+(setq *currentPlayer* *firstPlayer*)
 
-(defconstant *firstPlayer* 'X)
-(defconstant *secondPlayer* 'O)
 
 ;;human and computer
 (defvar *human*)
 (setq *human* '())
 (defvar *computer*)
 (setq *computer* '())
+
+(defvar *gameState* '0)
 
 ;;Matrix generating *********************************************************************************************************************************************************
 
@@ -102,15 +108,16 @@
         ((equalp j '0) (cons el (setElement el i (- j 1) (cdr matrix))))
    (t(cons (car matrix) (setElement el (- i 1) (- j 1) (cdr matrix))))))
 
-(defun validateMove(i j)
+(defun validateMove(i j boardState)
   (cond
+   ((not(and (numberp i) (numberp j))) '() )
    ((or (< i '0) (< j '0)) '())
-   (t(equalp (nth j (nth i *board*)) *emptyField*))))
+   (t(equalp (nth j (nth i boardState)) *emptyField*))))
 
 (defun playMove (player)
   (format t "~%Enter a character for the row and number for the column: ")
   (let* ((rowChar (read-char)) (i (- (char-code rowChar) 65)) (j (read)))
-    (cond ((not(validateMove i j)) (format t "~%Invalid input!") (playMove player))
+    (cond ((not(validateMove i j *board*)) (format t "~%Invalid input!") (playMove player))
           (t (setq *board* (setElement player i j *board*))))
     ))
 
@@ -121,7 +128,55 @@
           ((equalp player 'h) (setq *human* *firstPlayer*) (setq *computer* *secondPlayer*))
           (t(setq *human* *secondPlayer*) (setq *computer* *firstPlayer*))
           )))
-          
+
+;; Phase II ***********************************************************************************************
+
+;; Play move that returns the new state, instead of changing *board*
+(defun getNewState (player i j boardState)
+    (cond ((not(validateMove i j boardState)) '())
+          (t (setElement player i j boardState))
+          ))
+
+
+(defun getPossibleStates (boardState player dim)
+  (let ((possibleStates '()))
+  (dotimes (i dim)
+    (dotimes (j dim)
+      (cond ( (equalp (nth j (nth i boardState)) *emptyField*) 
+        (setq possibleStates (append possibleStates (list (getNewState player i j boardState))) )
+      ))))
+      (return-from getPossibleStates possibleStates)))
+
+
+(defun havannah ()
+  (progn 
+    (setq *currentPlayer* *firstPlayer*)
+    (setDimension)
+    ;;(choosePlayer)
+    (playGame '0)
+    (format t "~%Do you want to restart? ('Y' for YES, anything else for NO)~%")
+    (let ((repeat (read)))
+      (if (equalp repeat 'Y) (havannah))
+      )
+    )
+  )
+
+
+(defun playGame (index)
+  (cond ((= index '3) (format t "Game over! ~%"))
+        (t
+         (progn
+           (printBoard)
+           (playMove *currentPlayer*)
+           (switchCurrentPlayer)
+           (playGame (+ index 1))
+           ))))
+
+(defun switchCurrentPlayer()
+  (if (equalp *currentPlayer* *firstPlayer*) 
+      (setq *currentPlayer* *secondPlayer*)
+    (setq *currentPlayer* *firstPlayer*)))
+
 ;;Function calls  - Test functions here ***************************************************************************************************************************************
 
 (setDimension)
@@ -136,8 +191,12 @@
 
 (printBoard)
 
+(getNewState *human* '0 '0 *board*)
+(getPossibleStates *board* *human* *matrixDim*)
 
+(format t "~a" (getPossibleStates *board* *human* *matrixDim*))
 
+(havannah)
 
 
 
