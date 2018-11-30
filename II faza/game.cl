@@ -1,6 +1,5 @@
 ;;Matrix generating *********************************************************************************************************************************************************
 
-
 (defun generateValidRow (rowIndex colIndex member count)
   (dotimes (i count)
     (let ((columnIndex (+ i colIndex)))
@@ -37,7 +36,6 @@
     ))
 
 ;;Dimension input and start of the game *****************************************************************************************************************************************
-
 
 ;;Dimension input and initial matrix state 
 (defun setDimension ()
@@ -78,6 +76,8 @@
            ))
     ))
 
+;; Choose player ******************************************************************************************************************
+
 (defun choosePlayer()
   (format t "~%Enter h/c for the first player human/computer:")
   (let* ((player (read)))
@@ -85,23 +85,15 @@
           ((equalp player 'h) (setq *human* *firstPlayer*) (setq *computer* *secondPlayer*))
           (t(setq *human* *secondPlayer*) (setq *computer* *firstPlayer*))
           )))
+
+(defun switchCurrentPlayer()
+  (if (equalp *currentPlayer* *firstPlayer*) 
+      (setq *currentPlayer* *secondPlayer*)
+    (setq *currentPlayer* *firstPlayer*)))
+
 ;; Game ***************************************************************************************************************************
 
-(defun havannah ()
-  (progn 
-    (setq *gameState* '0)
-    (setq *currentPlayer* *firstPlayer*)
-    (setDimension)
-    ;;(choosePlayer)
-    (playGame '0)
-    (format t "~%Do you want to restart? ('Y' for YES, anything else for NO)~%")
-    (let ((repeat (read)))
-      (if (equalp repeat 'Y) (havannah))
-      )
-    )
-  )
-
-(defun playGame (index)
+(defun playGame ()
   (cond ((= *gameState* '1) 
          (printBoard *board*)
          (format t "Game over! ~%"))
@@ -110,10 +102,19 @@
            (printBoard *board*)
            (playMove *currentPlayer*)
            (switchCurrentPlayer)
-           (playGame (+ index 1))
+           (playGame)
            ))))
 
-(defun switchCurrentPlayer()
-  (if (equalp *currentPlayer* *firstPlayer*) 
-      (setq *currentPlayer* *secondPlayer*)
-    (setq *currentPlayer* *firstPlayer*)))
+(defun havannah ()
+  (progn 
+    (setq *gameState* '0)
+    (setq *currentPlayer* *firstPlayer*)
+    (setDimension)
+    ;;(choosePlayer)
+    (playGame)
+    (format t "~%Do you want to restart? ('Y' for YES, anything else for NO)~%")
+    (let ((repeat (read)))
+      (if (equalp repeat 'Y) (havannah))
+      )
+    )
+  )
