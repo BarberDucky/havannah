@@ -47,3 +47,22 @@
       )
     (return-from findNeighbours neighbourList)
     ))
+
+(defun findNeighboursNew (board row col currentPlayer)
+  (let* ((neighbourList '()) (nextNb '()))
+    (dotimes (i '6)
+      (setf nextNb (validateNeighbourIndex row col i currentPlayer board))
+      (if (not (null nextNb))
+         (setf neighbourList (append neighbourList (list (parentIndex (car nextNb) (cadr nextNb) *matrixDim*))))))
+    (return-from findNeighboursNew neighbourList)))
+
+(defun validateNeighbourIndex(row col indexNb currentPlayer board)
+  (let* ((neighbour (aref *neighbours* indexNb))
+         (rowNb (+ row (car neighbour)))
+         (colNb (+ col (cadr neighbour))))
+    (cond ((or (< rowNb '0) (< colNb '0) (>= rowNb *matrixDim*) (>= colNb *matrixDim*)) '())
+          (t (let ((matrixElement (aref board rowNb colNb)))
+               (cond ((equalp matrixElement *invalidField*) '())
+                     ((equalp (cell-value matrixElement) currentPlayer) (list rowNb colNb))
+                     (t( return-from validateNeighbourIndex '() ))))))))
+  

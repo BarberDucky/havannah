@@ -1,9 +1,9 @@
 ;;Load Milica
-;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\Havannah - Podeljeni fileovi\\global-variables.lisp")
-;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\Havannah - Podeljeni fileovi\\helpers.cl")
-;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\Havannah - Podeljeni fileovi\\union-rank.cl")
-;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\Havannah - Podeljeni fileovi\\game.cl")
-;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\Havannah - Podeljeni fileovi\\print-board.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\global-variables.lisp")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\helpers.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\union-rank.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\game.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\print-board.cl")
 
 ;;Load Ana
 ;;(load "D:\\Vestacka inteligencija\\Havannah\\havannah\\II faza\\global-variables.lisp")
@@ -24,5 +24,7 @@
 (printAll list)
 ;;****************************************************************** 
 
-
+(format t "~a" (validateNeighbour '0 '0 '4 *emptyField* *board*))
+(format t "~a" *board*)
+(printBoard *board*)
 (havannah)

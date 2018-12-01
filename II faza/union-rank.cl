@@ -22,7 +22,7 @@
          (newCorner (+ (cell-isCorner elementSecond) (cell-isCorner elementFirst)))
          (newEdge (logior (cell-isEdge elementSecond) (cell-isEdge elementFirst)))
          )
-    (cond ((equalp rootFirstIndex rootSecondIndex) (return-from union-rank))
+    (cond ((equalp rootFirstIndex rootSecondIndex) (return-from union-rank (cell-groupSize elementFirst)))
           ((< (cell-groupSize elementFirst) (cell-groupSize elementSecond))
            (progn
              (setf (cell-parent elementFirst) rootSecondIndex)
@@ -39,16 +39,62 @@
               (return-from union-rank elementFirst)
               )))))
 
-(defun uniteNeighboursWithList (neighbourList rowIndex colIndex board dim)
+(defun uniteNeighboursWithList (neighbourList rowIndex colIndex board dim currentPlayer)
   (cond
    ((null neighbourList) (return-from uniteNeighboursWithList))
    (t(let* ((rootElement (union-rank (parentIndex rowIndex colIndex dim) (car neighbourList) board dim)))
-       (if (and (not (null rootElement) ) (or (> (cell-isCorner rootElement) '1) (>= (aref *bitCount* (cell-isEdge rootElement)) '3)))
-          (progn
-            (setq *gameState* '1)
-            (return-from uniteNeighboursWithList)
-            )))
-      (uniteNeighboursWithList (cdr neighbourList) rowIndex colIndex board dim))))
+       (cond ((not (numberp rootElement))
+              (if (or (> (cell-isCorner rootElement) '1) (>= (aref *bitCount* (cell-isEdge rootElement)) '3))     
+                  (progn
+                    (setq *gameState* '1)
+                    (return-from uniteNeighboursWithList))))
+             (t (if (and (>= rootElement *ringSize*) (checkRing rowIndex colIndex currentPlayer *ringSize* board))
+                    (progn
+                      (setq *gameState* '1)
+                      (return-from uniteNeighboursWithList))))))
+      (uniteNeighboursWithList (cdr neighbourList) rowIndex colIndex board dim currentPlayer))))
 
 (defun uniteNeighbours (row col board dim currentPlayer)
-  (uniteNeighboursWithList (findNeighbours board row col currentPlayer) row col board dim))
+  (uniteNeighboursWithList (findNeighboursNew board row col currentPlayer) row col board dim currentPlayer))
+
+;;***********************************Ring**************************************************************
+
+(defun checkRing (row col currentPlayer ringSize board)
+  (let* ((element (aref board row col)) (success '()) (neighIndex '()) (neigh '()))
+    (progn
+      (setf (cell-ringDepth element) '1)
+      (dotimes (i '4)
+        (progn
+          (setf neighIndex (validateNeighbourIndex row col i currentPlayer board))
+          (if (not (null neighIndex))
+              (progn 
+                (setf neigh (aref board (car neighIndex) (cadr neighIndex)))
+                (setf (cell-ringDepth neigh) '2)
+                (setf success (followRing (car neighIndex) (cadr neighIndex) i currentPlayer '3 ringSize board))
+                (setf (cell-ringDepth neigh) '0)
+                (if (not (null success))
+                    (progn
+                      (setf (cell-ringDepth element) '0)
+                      (return-from checkRing success)))))))
+      (setf (cell-ringDepth element) '0)
+      (return-from checkRing success))))
+
+(defun followRing (row col dir currentPlayer depth ringSize board)
+  (let* ((success '()) (nbIndex '()) (nbNextIndex '()) (neigh '()))
+    (progn
+      (dolist (i '(5 6 7))
+        (progn
+          (setf nbIndex (mod (+ dir i) '6))
+          (setf nbNextIndex (validateNeighbourIndex row col nbIndex currentPlayer board))
+          (if (not (null nbNextIndex))
+              (progn
+                (setf neigh (aref board (car nbNextIndex) (cadr nbNextIndex)))
+                (if (> (cell-ringDepth neigh) '0)
+                    (return-from followRing (>= (- depth (cell-ringDepth neigh)) ringSize)))
+                (setf (cell-ringDepth neigh) depth)
+                (setf success (followRing (car nbNextIndex) (cadr nbNextIndex) nbIndex currentPlayer (+ depth 1) ringSize board))
+                (setf (cell-ringDepth neigh) '0)
+                (if (not (null success))
+                    (return-from followRing t))))))
+      (return-from followRing '()))))
+        

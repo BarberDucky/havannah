@@ -12,7 +12,8 @@
                       :parent (parentIndex rowIndex columnIndex *matrixDim*)
                       :groupSize '1
                       :isEdge (isEdge rowIndex columnIndex)
-                      :isCorner (isCorner rowIndex columnIndex))))
+                      :isCorner (isCorner rowIndex columnIndex)
+                      :ringDepth '0)))
                (setf (aref *board* rowIndex columnIndex) field)))))))
 
 (defun generateRow (rowIndex firstMember firstCount secondMember secondCount)
@@ -113,8 +114,7 @@
     ;;(choosePlayer)
     (playGame)
     (format t "~%Do you want to restart? ('Y' for YES, anything else for NO)~%")
-    (let ((repeat (read)))
-      (if (equalp repeat 'Y) (havannah))
+    (if (equalp (read) 'Y) (havannah)
+      (format t "Exited!"))
       )
     )
-  )
