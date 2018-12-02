@@ -21,6 +21,9 @@
 (defvar *computer*)
 (setq *computer* '())
 
+(defvar *numMoves* '0)
+(defvar *maxNumMoves* '0)
+
 (defvar *gameState*)
 (setq *gameState* '0) ;;0 - in progress, 1 - over, 2 - nereseno
 

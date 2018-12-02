@@ -47,6 +47,7 @@
      ( t 
       (setq *n* input) 
       (setq *matrixDim* (- (* 2 *n*) 1))
+      (setq *maxNumMoves* (-  (expt *matrixDim* '2) (* *n* (- *n* '1))))
       (initMatrix)
       ))))
 
@@ -73,7 +74,9 @@
     (cond ((not(validateMove i j *board*)) (format t "~%Invalid input!") (playMove player))
           (t 
            (setElement player i j *board*)
-           (uniteNeighbours i j *board* *matrixDim* player)
+           (setq *numMoves* (+ *numMoves* 1))
+           (if (equalp *numMoves* *maxNumMoves*) (setq *gameState* '2)
+             (uniteNeighbours i j *board* *matrixDim* player))
            ))
     ))
 
@@ -94,21 +97,31 @@
 
 ;; Game ***************************************************************************************************************************
 
-(defun playGame ()
-  (cond ((= *gameState* '1) 
+(defun isEndGame()
+  (cond ((= *gameState* '2)
          (printBoard *board*)
-         (format t "Game over! ~%"))
-        (t
-         (progn
-           (printBoard *board*)
-           (playMove *currentPlayer*)
-           (switchCurrentPlayer)
-           (playGame)
-           ))))
+         (format t "It's a tie! ~%")
+         (return-from isEndGame t))
+        ((and (= *gameState* '1))
+         (printBoard *board*)
+         (format t "Game over! Player ~a won! ~%" *currentPlayer*)
+         (return-from isEndGame t))
+        (t (return-from isEndGame '()))))
+
+
+(defun playGame()
+  (progn
+    (printBoard *board*)
+    (playMove *currentPlayer*)
+    (if (isEndGame) (return-from playGame))
+    (switchCurrentPlayer)
+    (playGame)))
+
 
 (defun havannah ()
   (progn 
     (setq *gameState* '0)
+    (setq *numMoves* '0)
     (setq *currentPlayer* *firstPlayer*)
     (setDimension)
     ;;(choosePlayer)
