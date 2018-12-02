@@ -9,8 +9,7 @@
     (if (equalp (cell-parent element) index) element
       (prog1
           (setf newIndex (root (cell-parent element) dim boardState))
-        (setf (cell-parent element) newIndex)))))
-      
+        (setf (cell-parent element) (cell-parent newIndex))))))
 
 (defun isInUnion(firstNodeIndex secondNodeIndex board dim)
   (equalp (root firstNodeIndex dim board) (root secondNodeIndex dim board)))

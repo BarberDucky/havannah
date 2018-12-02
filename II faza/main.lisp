@@ -27,4 +27,11 @@
 (format t "~a" (validateNeighbour '0 '0 '4 *emptyField* *board*))
 (format t "~a" *board*)
 (printBoard *board*)
+
+(setDimension)
+(setElement 'X 0 0 *board*)
+(setElement 'X 1 1 *board*)
+(union-rank 0 6 *board* *matrixDim*)
+(setElement 'X 2 2 *board* )
+(union-rank 6 12 *board* *matrixDim*)
 (havannah)
