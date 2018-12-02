@@ -4,9 +4,13 @@
 (defun root (index dim boardState)
   (let* ((columnIndex (getColumnFromIndex index dim)) 
          (rowIndex (getRowFromIndex index columnIndex dim))
-         (element (aref boardState rowIndex columnIndex)))
-    (if (equalp (cell-parent element) index) element 
-      (setf (cell-parent element) (root (cell-parent element) dim boardState)))))
+         (element (aref boardState rowIndex columnIndex))
+         (newIndex '()))
+    (if (equalp (cell-parent element) index) element
+      (prog1
+          (setf newIndex (root (cell-parent element) dim boardState))
+        (setf (cell-parent element) newIndex)))))
+      
 
 (defun isInUnion(firstNodeIndex secondNodeIndex board dim)
   (equalp (root firstNodeIndex dim board) (root secondNodeIndex dim board)))

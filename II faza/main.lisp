@@ -4,7 +4,7 @@
 (load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\union-rank.cl")
 (load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\game.cl")
 (load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\print-board.cl")
-
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\operatori-stanja.cl")
 ;;Load Ana
 ;;(load "D:\\Vestacka inteligencija\\Havannah\\havannah\\II faza\\global-variables.lisp")
 ;;(load "D:\\Vestacka inteligencija\\Havannah\\havannah\\II faza\\helpers.cl")
@@ -15,7 +15,7 @@
 
 ;;********************TEST***************************************
 (defvar list)
-(setq list (getPossibleStates *board* *human* *matrixDim*))
+(setq list (getPossibleStates *board* *currentPlayer* *matrixDim*))
 (defun printAll(lista)
   (cond ((null lista) (return-from printAll))
         (t(printBoard (car lista)) (printAll(cdr lista)))))
