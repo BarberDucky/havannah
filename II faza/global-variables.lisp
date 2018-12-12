@@ -58,3 +58,9 @@
   isCorner                                   ;; is the cell a corner
   ringDepth                                  ;; depth for check ring
   )
+
+(defstruct move
+  row
+  col
+  score
+)  
