@@ -1,10 +1,11 @@
 ;;Load Milica
-;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\global-variables.lisp")
-;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\helpers.cl")
-;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\union-rank.cl")
-;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\game.cl")
-;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\print-board.cl")
-
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\global-variables.lisp")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\helpers.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\union-rank.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\game.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\print-board.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\operatori-stanja.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\alpha-beta.cl")
 ;;Load Ana
 ;;(load "D:\\Vestacka inteligencija\\Havannah\\havannah\\II faza\\global-variables.lisp")
 ;;(load "D:\\Vestacka inteligencija\\Havannah\\havannah\\II faza\\helpers.cl")
@@ -39,8 +40,9 @@
 
 (setDimension)
 (choosePlayer)
-(format t "~%~a" (alpha-beta '50 *board* '() '-2000 '2000 1 *numMoves*))
 (setElement 'X 0 0 *board*)
+(format t "~%~a" (alpha-beta '2 *board* '() '-2000 '2000 1 *numMoves*))
+
 (setElement 'X 1 1 *board*)
 (union-rank 0 6 *board* *matrixDim*)
 (setElement 'X 2 2 *board* )
@@ -53,7 +55,8 @@
     (progn
     (printBoard *board*)
       (playMove *human*)
-      (let ((computerMove (alpha-beta '50 *board* '() '-2000 '2000 1 *numMoves* )))
+      (let ((computerMove (alpha-beta '3 *board* '() '-2000 '2000 1 *numMoves* )))
+        (format t "~a" computerMove)
         (setElement *computer* (move-row computerMove) (move-col computerMove) *board*))
       (printBoard *board*)
       (if (equalp ind '3) (return-from gameComputer) (gameComputer (+ ind 1)))

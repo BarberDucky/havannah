@@ -59,6 +59,12 @@
                       (return-from uniteNeighboursWithList))))))
       (uniteNeighboursWithList (cdr neighbourList) rowIndex colIndex board dim currentPlayer))))
 
+(defun uniteNeighboursWithList (neighbourList rowIndex colIndex board dim currentPlayer)
+  (cond
+   ((null neighbourList) (return-from uniteNeighboursWithList))
+   (t(let* ((rootElement (union-rank (parentIndex rowIndex colIndex dim) (car neighbourList) board dim)))
+            (uniteNeighboursWithList (cdr neighbourList) rowIndex colIndex board dim currentPlayer)))))
+
 (defun uniteNeighbours (row col board dim currentPlayer)
   (uniteNeighboursWithList (findNeighboursNew board row col currentPlayer) row col board dim currentPlayer))
 
