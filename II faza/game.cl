@@ -80,6 +80,14 @@
            ))
     ))
 
+(defun playMoveComputer ()
+    (let ((bestMove (negamax 3 *board* '() '-2000 '2000 1 *numMoves*)))
+      (setElement *computer* (move-row bestMove) (move-col bestMove) *board*)
+      (setq *numMoves* (+ *numMoves* 1))
+      (if (equalp *numMoves* *maxNumMoves*) (setq *gameState* '2)
+             (uniteNeighbours (move-row bestMove) (move-col bestMove) *board* *matrixDim* *computer*))
+           ))
+
 ;; Choose player ******************************************************************************************************************
 
 (defun choosePlayer()
@@ -109,13 +117,23 @@
         (t (return-from isEndGame '()))))
 
 
-(defun playGame()
+(defun playGameHumans()
   (progn
     (printBoard *board*)
     (playMove *currentPlayer*)
-    (if (isEndGame) (return-from playGame))
+    (if (isEndGame) (return-from playGameHumans))
     (switchCurrentPlayer)
-    (playGame)))
+    (playGameHumans)))
+
+(defun playGameComputer ()
+  (progn
+    (printBoard *board*)
+    (cond ( (equal *currentPlayer* *computer*) (playMoveComputer) )
+          ( (equal *currentPlayer* *human*) (playMove *human*) ))
+    (if (isEndGame) (return-from playGameComputer))
+    (switchCurrentPlayer)
+    (playGameComputer)))
+  
 
 
 (defun havannah ()
@@ -124,8 +142,14 @@
     (setq *numMoves* '0)
     (setq *currentPlayer* *firstPlayer*)
     (setDimension)
-    ;;(choosePlayer)
-    (playGame)
+    (format t "~%Enter h/c to play with a human/computer:")
+    (let* ((player (read)))
+    (cond ((not (or (equalp player 'h) (equalp player 'c))) (format t "~%Invalid input!") (choosePlayer))
+          ((equalp player 'c) (choosePlayer) (playGameComputer))
+          (t (setq *human* *firstPlayer*) (setq *computer* *secondPlayer*) (playGameHumans))
+          ))
+    
+    
     (format t "~%Do you want to restart? ('Y' for YES, anything else for NO)~%")
     (if (equalp (read) 'Y) (havannah)
       (format t "Exited!"))

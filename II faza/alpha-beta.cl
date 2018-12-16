@@ -10,7 +10,7 @@
 (defun checkWin (board lastMove numMoves maxPlayer)
     (cond 
         ( (null lastMove) '() )
-        ( (equalp numMoves (- (* *ringSize* 2) 1)) (checkRing (move-row lastMove) (move-col lastMove) (playerToCurrent maxPlayer) *ringSize* board))
+        ( (>= numMoves (- (* *ringSize* 2) 1)) (checkRing (move-row lastMove) (move-col lastMove) (playerToCurrent (- 0 maxPlayer)) *ringSize* board))
         (t 
             (let* ((rootEl (root (parentIndex (move-row lastMove) (move-col lastMove) *matrixDim*) *matrixDim* board)))
               (if (or (> (cell-isCorner rootEl) '1) (>= (aref *bitCount* (cell-isEdge rootEl)) '3)) t '() )
@@ -26,6 +26,41 @@
     (return-from evaluate '0)
 )
 
+(defun negamax (depth board lastMove alpha beta maxPlayer numMoves)
+    (cond ( (equalp numMoves *maxNumMoves*) (make-move :row 0 :col 0 :score 0) )
+          ( (checkWin board lastMove numMoves maxPlayer) (make-move 
+                                                :row 0
+                                                :col 0
+                                                :score (+ '-1000 numMoves)));;(- 0 (- 1000 numMoves))) )
+          ( (zerop depth) (make-move 
+                           :row 0
+                           :col 0
+                           :score (evaluate board lastMove numMoves) ) )
+          ( t 
+            (let ((bestMove (make-move :row 0 :col 0 :score alpha)))
+                (dotimes (i *matrixDim*)
+                    (dotimes (j *matrixDim*)
+                        (let ((newState (getNewState (playerToCurrent maxPlayer) i j board))
+                              (newMove '()))
+                            (cond ( (not (null newState))  
+                                (progn 
+                                    (setf newMove (make-move :row i :col j :score '()))
+                                    (setf (move-score newMove) (- 0 (move-score (negamax (- depth 1) newState newMove (- 0 beta) (- 0 alpha) (- 0 maxPlayer) (+ numMoves 1)))))
+                                    (if (>= (move-score newMove) beta) (return-from negamax newMove))
+                                  (if (> (move-score newMove) (move-score bestMove)) 
+                                      (progn
+                                        (setf alpha (move-score newMove)) 
+                                        (setf bestMove (copy-structure newMove))))
+                                ) ) 
+                           )
+                        )
+                    )
+                )
+                (return-from negamax bestMove)
+            ) 
+          )
+    )
+)
 
 (defun alpha-beta (depth board lastMove alpha beta maxPlayer numMoves )
     (cond ( (equalp numMoves *maxNumMoves*) (make-move :row 0 :col 0 :score 0) )

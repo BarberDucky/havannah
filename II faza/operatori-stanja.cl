@@ -13,7 +13,7 @@
         (t (let ((newBoard (copyMatrix boardState *matrixDim*)))
              (progn
                (setElement player i j newBoard)
-               (uniteNeighbours i j newBoard *matrixDim* player)
+               (uniteNeighboursComputer i j newBoard *matrixDim* player)
                (return-from getNewState newBoard))))))
 
 (defun getPossibleStates (boardState player dim)

@@ -1,11 +1,11 @@
 ;;Load Milica
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\global-variables.lisp")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\helpers.cl")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\union-rank.cl")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\game.cl")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\print-board.cl")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\operatori-stanja.cl")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\alpha-beta.cl")
+;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\global-variables.lisp")
+;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\helpers.cl")
+;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\union-rank.cl")
+;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\game.cl")
+;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\print-board.cl")
+;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\operatori-stanja.cl")
+;;(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\alpha-beta.cl")
 ;;Load Ana
 ;;(load "D:\\Vestacka inteligencija\\Havannah\\havannah\\II faza\\global-variables.lisp")
 ;;(load "D:\\Vestacka inteligencija\\Havannah\\havannah\\II faza\\helpers.cl")
@@ -14,13 +14,13 @@
 ;;(load "D:\\Vestacka inteligencija\\Havannah\\havannah\\II faza\\print-board.cl")
 
 ;;Load Damjan
-(load "C:\\Users\\DamjanTrifunovic\\Desktop\\havannah\\II faza\\global-variables.lisp")
-(load "C:\\Users\\DamjanTrifunovic\\Desktop\\havannah\\II faza\\helpers.cl")
-(load "C:\\Users\\DamjanTrifunovic\\Desktop\\havannah\\II faza\\union-rank.cl")
-(load "C:\\Users\\DamjanTrifunovic\\Desktop\\havannah\\II faza\\game.cl")
-(load "C:\\Users\\DamjanTrifunovic\\Desktop\\havannah\\II faza\\print-board.cl")
-(load "C:\\Users\\DamjanTrifunovic\\Desktop\\havannah\\II faza\\alpha-beta.cl")
-(load "C:\\Users\\DamjanTrifunovic\\Desktop\\havannah\\II faza\\operatori-stanja.cl")
+(load "C:\\Users\\DamjanTrifunovic\\Desktop\\VI\\havannah\\II faza\\global-variables.lisp")
+(load "C:\\Users\\DamjanTrifunovic\\Desktop\\VI\\havannah\\II faza\\helpers.cl")
+(load "C:\\Users\\DamjanTrifunovic\\Desktop\\VI\\havannah\\II faza\\union-rank.cl")
+(load "C:\\Users\\DamjanTrifunovic\\Desktop\\VI\\havannah\\II faza\\game.cl")
+(load "C:\\Users\\DamjanTrifunovic\\Desktop\\VI\\havannah\\II faza\\print-board.cl")
+(load "C:\\Users\\DamjanTrifunovic\\Desktop\\VI\\havannah\\II faza\\alpha-beta.cl")
+(load "C:\\Users\\DamjanTrifunovic\\Desktop\\VI\\havannah\\II faza\\operatori-stanja.cl")
 
 
 ;;********************TEST***************************************
@@ -50,13 +50,18 @@
 (havannah)
 
 (setDimension)
+(setq *numMoves* 0)
 (choosePlayer)
 (defun gameComputer (ind)
     (progn
     (printBoard *board*)
       (playMove *human*)
-      (let ((computerMove (alpha-beta '3 *board* '() '-2000 '2000 1 *numMoves* )))
-        (format t "~a" computerMove)
+      (let ((computerMove (negamax '3 *board* '() '-2000 '2000 1 *numMoves* )))
+        (progn 
+          (+ *numMoves* 1)
+          (format t "~a Moves: ~a" computerMove *numMoves*)
+          )
+        
         (setElement *computer* (move-row computerMove) (move-col computerMove) *board*))
       (printBoard *board*)
       (if (equalp ind '3) (return-from gameComputer) (gameComputer (+ ind 1)))
