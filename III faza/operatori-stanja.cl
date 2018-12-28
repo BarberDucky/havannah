@@ -1,0 +1,26 @@
+(defun copyMatrix(boardState dim)
+  (let ((newBoardState (make-array (list dim dim))))
+    (dotimes (i dim)
+      (dotimes (j dim)
+        (let ((field (aref boardState i j)))
+          (cond ((equalp field *invalidField*) (setf (aref newBoardState i j) *invalidField*))
+                (t(setf (aref newBoardState i j) (copy-structure field)))))))
+    (return-from copyMatrix newBoardState)))
+
+;; Play move that returns the new state, instead of changing *board*
+(defun getNewState (player i j boardState)
+  (cond ((not(validateMove i j boardState)) '())
+        (t (let ((newBoard (copyMatrix boardState *matrixDim*)))
+             (progn
+               (setElement player i j newBoard)
+               (uniteNeighboursComputer i j newBoard *matrixDim* player)
+               (return-from getNewState newBoard))))))
+
+(defun getPossibleStates (boardState player dim)
+  (let ((possibleStates '()))
+  (dotimes (i dim)
+    (dotimes (j dim)
+      (let ((newState (list (getNewState player i j boardState))))
+        (cond ((not(null (car newState)))
+                    (setq possibleStates (append possibleStates newState )))))))
+    (return-from getPossibleStates possibleStates)))
