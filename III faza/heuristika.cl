@@ -5,15 +5,7 @@
       (setf score (* *edgeConnectivity* (edgeConnectivity rootEl)))
       (setf score (+ score (groupSize rootEl)))
       (setf score (+ score (localityScore board lastMove player)))
-      (if (or (>= score 26) (<= score '-26))
-          (progn
-            (format t "Locality score ~a~%" (localityScore board lastMove player))
-            (format t "Last move ~a~%" lastMove)
-            (format t "Group size ~a~%" (groupSize rootEl))
-            (format t "Connectivity ~a~%" (edgeConnectivity rootEl))
-            (format t "Score ~a~%" score)
-
-            (printBoard board)))
+      (setf score (- numMoves score))
       (return-from evaluate score)
       )))
 
@@ -21,11 +13,6 @@
   (let* ((score '0))
     (progn 
       (setq score (+ (aref *bitCount* (car (cell-isEdge rootEl))) (car (cell-isCorner rootEl))))
-     ;; (if (> score '20) (progn 
-                            ;;   (printBoard board)
-                       ; ;;  (format t "~a~%" lastMove)
-                       ;;   (format t "~a~%" score)
-                       ;;   ))
       (return-from edgeConnectivity score))))
 
 (defun groupSize (rootEl)

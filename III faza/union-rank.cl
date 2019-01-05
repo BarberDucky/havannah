@@ -1,6 +1,5 @@
 ;;Union-rank funcions****************************************************************************************************************************************************
 
-;;FALI NAM PATH COMPRESSION
 (defun root (index dim boardState)
   (let* ((columnIndex (getColumnFromIndex index dim)) 
          (rowIndex (getRowFromIndex index columnIndex dim))
@@ -59,14 +58,9 @@
                       (return-from uniteNeighboursWithList))))))
       (uniteNeighboursWithList (cdr neighbourList) rowIndex colIndex board dim currentPlayer))))
 
-;;(defun uniteNeighboursWithList (neighbourList rowIndex colIndex board dim currentPlayer)
- ;; (cond
- ;;  ((null neighbourList) (return-from uniteNeighboursWithList))
- ;;  (t(let* ((rootElement (union-rank (parentIndex rowIndex colIndex dim) (car neighbourList) board dim)))
-   ;;         (uniteNeighboursWithList (cdr neighbourList) rowIndex colIndex board dim currentPlayer)))))
-
 (defun uniteNeighbours (row col board dim currentPlayer)
   (uniteNeighboursWithList (findNeighboursNew board row col currentPlayer) row col board dim currentPlayer))
+
 ;;***********************************Union-find Computer***************************************************
 
 (defun rootComputer (index dim boardState)
@@ -113,13 +107,10 @@
 (defun un-union (row col dim boardState)
   (let* ((parentsList (find-parents t (parentIndex row col dim) dim boardState))
          (element (aref boardState row col)))
-    ;;(format t "~a" parentsList)
     (dolist (parent parentsList)
       (let* ((parentRow (car parent))
              (parentCol (cadr parent))
              (parentElement (aref boardState parentRow parentCol)))
-        ;;(if (> (cell-isCorner element) '0)
-        ;;(setf (cell-isCorner parentElement) (- (cell-isCorner parentElement) 1)))
         (if (not(null (cdr (cell-isCorner parentElement))))
             (progn
               (setf (cell-isCorner parentElement) (cdr (cell-isCorner parentElement)))
@@ -132,24 +123,12 @@
       
 (defun remove-move (row col boardState dim)
   (let ((element (aref boardState row col)))
-    ;;(cond ((not (equalp (cell-parent element) (parentIndex row col dim)))
            (progn
              (un-union row col dim boardState)
              (setf (cell-value element) *emptyField*)
              (setf (cell-parent element) (parentIndex row col dim)))))
-          ;;(t (setf (cell-value element) *emptyField*)))))
 
-(defun remove-move-new (row col boardState dim)
-  (let ((element (aref boardState row col)))
-    (un-union row col dim boardState)
-    (setf (aref boardState row col) 
-      (make-cell
-       :value *emptyField*
-       :parent (parentIndex row col dim)
-       :groupSize '(1)
-       :isEdge (list (isEdge row col))
-       :isCorner (list (isCorner row col))
-       :ringDepth '0))))
+
 ;;***********************************Ring**************************************************************
 
 (defun checkRing (row col currentPlayer ringSize board)

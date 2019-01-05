@@ -99,8 +99,9 @@
         (setf (cell-locality matrixEl) 
           (list (logior (car (cell-locality matrixEl)) newScore)))
         ))))
-      
-         
+
+;;********************************************* LOCALITY COMPUTER FUNCTIONS **********************************************************
+
 (defun setLocalityComputer (board row col currentPlayer)
   (let* ((neighbourList '())
          (shifte '0))

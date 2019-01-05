@@ -1,9 +1,9 @@
-;; PREDEFINISANI PREDIKATI
-
+;;******************************* PARAMETRI ****************************************************************
 (defparameter *T1-RULES* '())
 (defparameter *T1-FACTS* '())
 
-;;******************************** FJE ZA MASINU **************************************************
+;;******************************** PREDIFINISANI PREDIKATI **************************************************
+
 (defun !eq (a b)
   (equal a b))
 
@@ -17,19 +17,6 @@
 (defun !isCorner (row col)
   (let* ((corner (isCorner row col)))
     (if (> corner '0) t '())))
-
-(defun !playerCell (currentPlayer row col board)
-  (let* ((matrixEl (aref board row col)))
-    (if (equalp currentPlayer (cell-value matrixEl)) t '())))
-
-(defun !opponentCell (currentPlayer row col board)
-  (let* ((opponent '())
-         (matrixEl (aref board row col))
-         )
-    (progn
-      (if (equalp currentPlayer *human*)
-          (setf opponent *computer*) (setf opponent *human*))
-      (if (equalp opponent (cell-value matrixEl)) t '()))))
 
 (defun !locality1 (row col board)
   (let* ((score (get-locality-score row col board)))
@@ -64,17 +51,7 @@
     (if (> score '1) t '())))
 
 
-;;****************************************** POMOCNE FJE I HEURISTIKA **********************************************
-
-(defun get-locality-score (row col board)
-  (let* ((matrixEl (aref board row col))
-         (player (cell-value matrixEl))
-         (shifte '0)
-         (score '0))
-    (if (equalp player *secondPlayer*) (setf shifte '-2))
-    (setf score (ash (car (cell-locality matrixEl)) shifte))
-    (return-from get-locality-score score)))
-
+;;****************************************** POMOCNE FJE **********************************************
 
 (defun get-cell-state (i j player board)
   (cond ( (equalp player (cell-value (aref board i j))) (list (list 'move i j)) )
@@ -119,7 +96,19 @@
     ))
   )
 
-(defun heuristika-inference-engine (board matrixDim lastMove)
+
+(defun get-locality-score (row col board)
+  (let* ((matrixEl (aref board row col))
+         (player (cell-value matrixEl))
+         (shifte '0)
+         (score '0))
+    (if (equalp player *secondPlayer*) (setf shifte '-2))
+    (setf score (ash (car (cell-locality matrixEl)) shifte))
+    (return-from get-locality-score score)))
+
+;;************************************** HEURISTRIKA *********************************************************************************
+
+(defun heuristika-inference-engine (board matrixDim lastMove numMoves)
   (generate-facts board matrixDim lastMove)
   (set-rules)
   (prepare-knowledge *T1-RULES* *T1-FACTS* 10)
@@ -137,18 +126,5 @@
         (setf score (+ score locScore)))
     (if (not (null edgeCScore))
         (setf score (+ score (* *edgeConnectivity* edgeCScore))))
-    (return-from heuristika-inference-engine score)))
-
-(setq m (make-move 
-         :row '0
-         :col '1
-         :score '0
-         ))
-(generate-facts *board* *matrixDim* m)
-(set-rules)
-(get-locality-score '0 '1 *board*)
-(prepare-knowledge *T1-RULES* *T1-FACTS* 10)
-(infer '(last-move ?x ?y ?z))
-(+ 2 (cadaar (infer '(loc ?x))))
-
+    (return-from heuristika-inference-engine (- 0 score))))
 
