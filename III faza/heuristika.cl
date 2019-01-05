@@ -2,7 +2,7 @@
   (let* ((rootEl (rootComputer (parentIndex (move-row lastMove) (move-col lastMove) *matrixDim*) *matrixDim* board))
          (score '0))
     (progn
-      (setf score (edgeConnectivity rootEl))
+      (setf score (* *edgeConnectivity* (edgeConnectivity rootEl)))
       (setf score (+ score (groupSize rootEl)))
       (setf score (+ score (localityScore board lastMove player)))
       (if (or (>= score 26) (<= score '-26))
@@ -20,7 +20,7 @@
 (defun edgeConnectivity (rootEl)
   (let* ((score '0))
     (progn 
-      (setq score (* *edgeConnectivity* (+ (aref *bitCount* (car (cell-isEdge rootEl))) (car (cell-isCorner rootEl)))))
+      (setq score (+ (aref *bitCount* (car (cell-isEdge rootEl))) (car (cell-isCorner rootEl))))
      ;; (if (> score '20) (progn 
                             ;;   (printBoard board)
                        ; ;;  (format t "~a~%" lastMove)

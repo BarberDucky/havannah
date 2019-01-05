@@ -84,7 +84,7 @@
     ))
 
 (defun playMoveComputer ()
-  (let ((bestMove (negamaxRetMove '2 *board* '() '-2000 '2000 1 *numMoves*)))
+  (let ((bestMove (negamaxRetMove '3 *board* '() '-2000 '2000 1 *numMoves*)))
     (format t "~a" bestMove)
     (setElement *computer* (move-row bestMove) (move-col bestMove) *board*)
     (setLocality *board* (move-row bestMove) (move-col bestMove) *computer*)

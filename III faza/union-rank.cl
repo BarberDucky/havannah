@@ -89,7 +89,7 @@
                (setf (cell-parent elementSecond) rootFirstIndex)
                (setf (cell-isCorner elementFirst) (cons newCorner (cell-isCorner elementFirst)))
                (setf (cell-isEdge elementFirst) (cons newEdge (cell-isEdge elementFirst))))
-              (setf (cell-groupSize elementFirst) (cons newGroupSize (cell-groupSize elementFirst)))))))
+               (setf (cell-groupSize elementFirst) (cons newGroupSize (cell-groupSize elementFirst)))))))
              
 
 (defun uniteNeighboursWithListComputer (neighbourList rowIndex colIndex board dim currentPlayer)
