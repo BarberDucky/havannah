@@ -11,6 +11,7 @@
 
 (defconstant *firstPlayer* 'X)
 (defconstant *secondPlayer* 'O)
+(defconstant *edgeConnectivity* '10)
 
 (defvar *currentPlayer*)
 (setq *currentPlayer* *firstPlayer*)
@@ -41,14 +42,13 @@
                       3 4 4 5 4 5 5 6)))
 
 (defvar *neighbours*)
-(setf *neighbours* (make-array '(6)
+(setf *neighbours* (make-array '(18)
                                :initial-contents
-                               '((-1 -1) 
-                                 (0 -1)
-                                 (1 0)
-                                 (1 1)
-                                 (0 1)
-                                 (-1 0))))
+                               '(
+                                 (-1 -1 3) (0 -1 3) (1 0 3) (1 1 3) (0 1 3) (-1 0 3)
+                                 (-2 -1 2) (-1 -2 2) (1 -1 2) (2 1 2) (1 2 2) (-1 1 2)
+                                 (-2 -2 1) (0 -2 1) (2 0 1) (2 2 1) (0 2 1) (-2 0 1)
+                                 )))
 
 (defstruct cell
   value                                      ;; value of a cell: X,O,0,-
@@ -57,6 +57,7 @@
   isEdge                                     ;; is the cell an edge
   isCorner                                   ;; is the cell a corner
   ringDepth                                  ;; depth for check ring
+  locality                                   ;; second neighbour circle
   )
 
 (defstruct move

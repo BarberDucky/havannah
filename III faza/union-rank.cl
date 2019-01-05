@@ -23,22 +23,22 @@
          (elementSecond (root secondNodeIndex dim board))
          (rootFirstIndex (cell-parent elementFirst))
          (rootSecondIndex (cell-parent elementSecond))
-         (newGroupSize (+ (cell-groupSize elementSecond) (cell-groupSize elementFirst)))
+         (newGroupSize (+ (car (cell-groupSize elementSecond)) (car (cell-groupSize elementFirst))))
          (newCorner (+ (car (cell-isCorner elementSecond)) (car(cell-isCorner elementFirst))))
          (newEdge (logior (car (cell-isEdge elementSecond)) (car(cell-isEdge elementFirst))))
          )
-    (cond ((equalp rootFirstIndex rootSecondIndex) (return-from union-rank (cell-groupSize elementFirst)))
-          ((< (cell-groupSize elementFirst) (cell-groupSize elementSecond))
+    (cond ((equalp rootFirstIndex rootSecondIndex) (return-from union-rank (car (cell-groupSize elementFirst))))
+          ((< (car (cell-groupSize elementFirst)) (car (cell-groupSize elementSecond)))
            (progn
              (setf (cell-parent elementFirst) rootSecondIndex)
-             (setf (cell-groupSize elementSecond) newGroupSize)
+             (setf (cell-groupSize elementSecond) (list newGroupSize))
              (setf (cell-isCorner elementSecond) (list newCorner))
              (setf (cell-isEdge elementSecond) (list newEdge))
              (return-from union-rank elementSecond)
              ))
           (t(progn
               (setf (cell-parent elementSecond) rootFirstIndex)
-              (setf (cell-groupSize elementFirst) newGroupSize)
+              (setf (cell-groupSize elementFirst) (list newGroupSize))
               (setf (cell-isCorner elementFirst) (list newCorner))
               (setf (cell-isEdge elementFirst) (list newEdge))
               (return-from union-rank elementFirst)
@@ -82,12 +82,14 @@
           (rootFirstIndex (cell-parent elementFirst))
           (rootSecondIndex (cell-parent elementSecond))
           (newCorner (+ (car (cell-isCorner elementSecond)) (car (cell-isCorner elementFirst))))
-         (newEdge (logior (car (cell-isEdge elementSecond)) (car (cell-isEdge elementFirst)))))
+         (newEdge (logior (car (cell-isEdge elementSecond)) (car (cell-isEdge elementFirst))))
+         (newGroupSize (+ (car (cell-groupSize elementSecond)) (car (cell-groupSize elementFirst)))))
     (cond ((equalp rootFirstIndex rootSecondIndex) (return-from union-find-computer '()))
            (t(progn
                (setf (cell-parent elementSecond) rootFirstIndex)
                (setf (cell-isCorner elementFirst) (cons newCorner (cell-isCorner elementFirst)))
-               (setf (cell-isEdge elementFirst) (cons newEdge (cell-isEdge elementFirst))))))))
+               (setf (cell-isEdge elementFirst) (cons newEdge (cell-isEdge elementFirst))))
+              (setf (cell-groupSize elementFirst) (cons newGroupSize (cell-groupSize elementFirst)))))))
              
 
 (defun uniteNeighboursWithListComputer (neighbourList rowIndex colIndex board dim currentPlayer)
@@ -121,7 +123,10 @@
         (if (not(null (cdr (cell-isCorner parentElement))))
             (progn
               (setf (cell-isCorner parentElement) (cdr (cell-isCorner parentElement)))
-              (setf (cell-isEdge parentElement) (cdr (cell-isEdge parentElement)))))
+              (setf (cell-isEdge parentElement) (cdr (cell-isEdge parentElement)))
+              (setf (cell-groupSize parentElement) (cdr (cell-groupSize parentElement)))
+              )
+          )
         (if (not (equalp (cell-parent parentElement) (parentIndex parentRow parentCol dim)))
             (setf (cell-parent parentElement) (parentIndex parentRow parentCol dim)))))))
       
@@ -141,7 +146,7 @@
       (make-cell
        :value *emptyField*
        :parent (parentIndex row col dim)
-       :groupSize '1
+       :groupSize '(1)
        :isEdge (list (isEdge row col))
        :isCorner (list (isCorner row col))
        :ringDepth '0))))

@@ -1,11 +1,15 @@
 ;;Load Milica
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\global-variables.lisp")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\helpers.cl")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\union-rank.cl")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\game.cl")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\print-board.cl")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\operatori-stanja.cl")
-(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\II faza\\alpha-beta.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\III faza\\global-variables.lisp")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\III faza\\helpers.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\III faza\\union-rank.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\III faza\\game.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\III faza\\print-board.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\III faza\\operatori-stanja.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\III faza\\alpha-beta.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\III faza\\heuristika.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\III faza\\masina-zakljucivanja.cl")
+(load "D:\\Fax\\VII semestar\\Vestacka inteligencija\\Projekat\\havannah\\havannah\\III faza\\inference-engine.cl")
+
 ;;Load Ana
 ;;(load "D:\\Vestacka inteligencija\\Havannah\\havannah\\II faza\\global-variables.lisp")
 ;;(load "D:\\Vestacka inteligencija\\Havannah\\havannah\\II faza\\helpers.cl")
@@ -65,3 +69,44 @@
 (test '3 'O '0)
 (untrace test)
 (random 900)
+
+(setElement 'O '0 '0 *board*)
+(uniteNeighboursComputer '0 '0 *board* *matrixDim* 'O)
+(setElement 'O '0 '1 *board*)
+(uniteNeighboursComputer '0 '1 *board* *matrixDim* 'O)
+(setElement 'O '1 '0 *board*)
+(uniteNeighboursComputer '1 '0 *board* *matrixDim* 'O)
+
+(setElement '0 '8 '7 *board*)
+
+(defun findNeighboursTest (board row col currentPlayer)
+  (let* ((neighbourList '()) (nextNb '()))
+    (dotimes (i '18)
+      (setf nextNb (validateNeighbourIndex row col i currentPlayer board))
+      (format t "~a~%" nextNb)
+      (if (not (null nextNb))
+         (cond ((equalp (caddr nextNb) '3)
+                 (setElement '3 (car nextNb) (cadr nextNb) *board*))
+                ((equalp (caddr nextNb) '2)
+                 (setElement '2 (car nextNb) (cadr nextNb) *board*))
+                (t
+                 (setElement '1 (car nextNb) (cadr nextNb) *board*))))
+        (setf neighbourList (append neighbourList (list (parentIndex (car nextNb) (cadr nextNb) *matrixDim*)))))
+      )
+    (return-from findNeighboursTest neighbourList)))
+
+(findNeighboursTest *board* '8 '7 '1)
+(format t "~a" (findNeighboursSecond *board* '8 '7))
+(caddr '(1 2 3))
+(equalp (caddr '(1 2 3)) '3)
+
+(setElement 'X '8 '7 *board*)
+(setLocalityComputer *board* '8 '7 'X)
+
+(setElement 'X '8 '8 *board*)
+(setLocalityComputer *board* '8 '8 'X)
+
+(unsetLocalityComputer *board* '8 '8)
+(unsetLocalityComputer *board* '8 '7)
+
+(format t "~a" *board*)

@@ -10,10 +10,12 @@
                      (make-cell
                       :value member
                       :parent (parentIndex rowIndex columnIndex *matrixDim*)
-                      :groupSize '1
+                      :groupSize '(1)
                       :isEdge (list (isEdge rowIndex columnIndex))
                       :isCorner (list (isCorner rowIndex columnIndex))
-                      :ringDepth '0)))
+                      :ringDepth '0
+                      :locality '(0))
+                     ))
                (setf (aref *board* rowIndex columnIndex) field)))))))
 
 (defun generateRow (rowIndex firstMember firstCount secondMember secondCount)
@@ -74,6 +76,7 @@
     (cond ((not(validateMove i j *board*)) (format t "~%Invalid input!") (playMove player))
           (t 
            (setElement player i j *board*)
+           (setLocality *board* i j player)
            (setq *numMoves* (+ *numMoves* 1))
            (if (equalp *numMoves* *maxNumMoves*) (setq *gameState* '2)
              (uniteNeighbours i j *board* *matrixDim* player))
@@ -81,9 +84,11 @@
     ))
 
 (defun playMoveComputer ()
-  (let ((bestMove (negamaxRetMove '3 *board* '() '-2000 '2000 1 *numMoves*)))
+  (let ((bestMove (negamaxRetMove '2 *board* '() '-2000 '2000 1 *numMoves*)))
     (format t "~a" bestMove)
-      (setElement *computer* (move-row bestMove) (move-col bestMove) *board*)
+    (setElement *computer* (move-row bestMove) (move-col bestMove) *board*)
+    (setLocality *board* (move-row bestMove) (move-col bestMove) *computer*)
+    ;;(format t "~a~%" (findNeighboursSecond *board* (move-row bestMove) (move-col bestMove)))
       (setq *numMoves* (+ *numMoves* 1))
       (if (equalp *numMoves* *maxNumMoves*) (setq *gameState* '2)
              (uniteNeighbours (move-row bestMove) (move-col bestMove) *board* *matrixDim* *computer*))

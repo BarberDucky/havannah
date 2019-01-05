@@ -5,7 +5,6 @@
         (t *human*)
     )
   )
-(playerToCurrent '-1)
 
 (defun checkWin (board lastMove numMoves maxPlayer)
     (cond 
@@ -22,10 +21,6 @@
 )
 
 
-(defun evaluate (board lastMove numMoves)
-    (return-from evaluate '0)
-)
-
 (defun negamax (depth board lastMove alpha beta maxPlayer numMoves)
     (cond ( (equalp numMoves *maxNumMoves*) (make-move :row 0 :col 0 :score 0) )
           ( (checkWin board lastMove numMoves maxPlayer) (make-move 
@@ -35,7 +30,7 @@
           ( (zerop depth) (make-move 
                            :row 0
                            :col 0
-                           :score (evaluate board lastMove numMoves) ) )
+                           :score (- 0 (evaluate board lastMove numMoves) ) ))
           ( t 
             (let ((bestMove (make-move :row 0 :col 0 :score alpha)))
                 (dotimes (i *matrixDim*)
@@ -71,7 +66,7 @@
           ( (zerop depth) (make-move
                            :row 0
                            :col 0
-                           :score (evaluate board lastMove numMoves) ) )
+                           :score (*  maxPlayer (evaluate board lastMove numMoves) ) ))
           ( (equal maxPlayer '1) ;;max player je *computer*
             (let ((bestMove (make-move :row 0 :col 0 :score alpha))) 
                 (dotimes (i *matrixDim*) 

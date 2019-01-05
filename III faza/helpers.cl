@@ -63,6 +63,65 @@
     (cond ((or (< rowNb '0) (< colNb '0) (>= rowNb *matrixDim*) (>= colNb *matrixDim*)) '())
           (t (let ((matrixElement (aref board rowNb colNb)))
                (cond ((equalp matrixElement *invalidField*) '())
-                     ((equalp (cell-value matrixElement) currentPlayer) (list rowNb colNb))
+                     ((equalp (cell-value matrixElement) currentPlayer) (list rowNb colNb (caddr neighbour) ))
                      (t( return-from validateNeighbourIndex '() ))))))))
-  
+
+;;**************************** LOCALITY HELPERS *********************************************************************
+
+(defun validateNeighbourSecond (row col indexNb board)
+   (let* ((neighbour (aref *neighbours* indexNb))
+         (rowNb (+ row (car neighbour)))
+         (colNb (+ col (cadr neighbour))))
+    (cond ((or (< rowNb '0) (< colNb '0) (>= rowNb *matrixDim*) (>= colNb *matrixDim*)) '())
+          (t (let ((matrixElement (aref board rowNb colNb)))
+               (cond ((equalp matrixElement *invalidField*) '())
+                     (t (return-from validateNeighbourSecond (list rowNb colNb (caddr neighbour) )))))))))
+
+(defun findNeighboursSecond (board row col)
+  (let* ((neighbourList '()) (nextNb '()))
+    (dotimes (i '18)
+      (setf nextNb (validateNeighbourSecond row col i board))
+      (if (not (null nextNb))
+          (setf neighbourList (append neighbourList (list nextNb)))))
+    (return-from findNeighboursSecond neighbourList)))
+
+;; firstPlayer shift - '0; secondPlayer - '2
+(defun setLocality (board row col currentPlayer)
+  (let* ((neighbourList '())
+         (shifte '0))
+    (setf neighbourList (findNeighboursSecond board row col))
+    (if (equalp currentPlayer *secondPlayer*) (setf shifte '2))
+    (dolist (el neighbourList)
+      (let* ((score (caddr el))
+             (matrixEl (aref board (car el) (cadr el)))
+             (newScore '0))
+        (setf newScore (ash score shifte))
+        (setf (cell-locality matrixEl) 
+          (list (logior (car (cell-locality matrixEl)) newScore)))
+        ))))
+      
+         
+(defun setLocalityComputer (board row col currentPlayer)
+  (let* ((neighbourList '())
+         (shifte '0))
+    (setf neighbourList (findNeighboursSecond board row col))
+    (if (equalp currentPlayer *secondPlayer*) (setf shifte '2))
+    (dolist (el neighbourList)
+      (let* ((score (caddr el))
+             (matrixEl (aref board (car el) (cadr el)))
+             (newScore '0))
+        (setf newScore (ash score shifte))
+        (setf (cell-locality matrixEl) 
+          (append (list (logior (car (cell-locality matrixEl)) newScore)) (cell-locality matrixEl))
+          )))))
+
+(defun unsetLocalityComputer (board row col)
+  (let* ((neighbourList '()))
+    (setf neighbourList (findNeighboursSecond board row col))
+    (dolist (el neighbourList)
+      (let* ((matrixEl (aref board (car el) (cadr el))))
+        (if (not (null (cdr (cell-locality matrixEl)))) 
+            (setf (cell-locality matrixEl) (cdr(cell-locality matrixEl))))))))
+
+      
+

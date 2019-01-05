@@ -5,7 +5,6 @@
         (t *human*)
     )
   )
-(playerToCurrent '-1)
 
 (defun checkWin (board lastMove numMoves maxPlayer)
     (cond 
@@ -35,10 +34,6 @@
             )
         )
     )
-)
-
-(defun evaluate (board lastMove numMoves)
-    (return-from evaluate '0)
 )
 
 ;;****************************** MINMAX ****************************************
@@ -144,12 +139,13 @@
           ( (zerop depth) (make-move 
                            :row 0
                            :col 0
-                           :score (evaluate board lastMove numMoves) ) )
+                           ;;:score (- 0 (evaluate board lastMove numMoves (playerToCurrent (- 0 maxPlayer))))))
+                           :score (- 0 (heuristika-inference-engine board *matrixDim* lastMove))))
           ( t 
-            (let ((bestMove (make-move :row 0 :col 0 :score alpha)))
+            (let* ((bestMove (make-move :row 0 :col 0 :score alpha)))
                 (dotimes (i *matrixDim*)
                     (dotimes (j *matrixDim*)
-                        (let ((valid (validateMove i j board))
+                        (let* ((valid (validateMove i j board))
                               (newMove '())
                               (player (playerToCurrent maxPlayer)))
                             (cond ( (not (null valid))  
@@ -157,9 +153,21 @@
                                      (setElement player i j board)
                                      (uniteNeighboursComputer i j board *matrixDim* player)
                                      (setf newMove (make-move :row i :col j :score '()))
+                                     (setLocalityComputer board i j player)
                                      (setf (move-score newMove) (- 0 (move-score (negamaxRetMove (- depth 1) board newMove (- 0 beta) (- 0 alpha) (- 0 maxPlayer) (+ numMoves 1)))))
+                                      (if (or (< (move-score newMove) '-20) (> (move-score newMove) '20)) 
+                                         (progn 
+                                           ;;(printBoard board)
+                                           ;;(format t "~a~%" newMove)
+                                           ))
                                      (remove-move i j board *matrixDim*)
-                                     (if (>= (move-score newMove) beta) (return-from negamaxRetMove newMove))
+                                     (unsetLocalityComputer board i j)
+                                     (if (>= (move-score newMove) beta) 
+                                         (progn
+                                          
+                                            ;;(format t "new move: ~a~%" newMove)
+                                            (return-from negamaxRetMove newMove))
+                                           )
                                      (if (> (move-score newMove) (move-score bestMove)) 
                                          (progn
                                            (setf alpha (move-score newMove)) 
@@ -168,9 +176,72 @@
                            )
                         )
                     )
-                )
+                  )
+              ;;(format t "best move: ~a~%" bestMove)
                 (return-from negamaxRetMove bestMove)
             ) 
           )
     )
-)
+  )
+;;****************************** MINMAX RETMOVE ****************************************
+(defun alpha-beta-retMove (depth board lastMove alpha beta maxPlayer numMoves )
+    (cond ( (equalp numMoves *maxNumMoves*) (make-move :row 0 :col 0 :score 0) )
+          ( (checkWinRetMove board lastMove numMoves maxPlayer) (make-move 
+                                                :row 0
+                                                :col 0
+                                                :score (* (- 0 maxPlayer) 1000)) )
+          ( (zerop depth) (make-move
+                           :row 0
+                           :col 0
+                           :score (* (- 0 maxPlayer) (evaluate board lastMove numMoves) ) ))
+          ( (equal maxPlayer '1) ;;max player je *computer*
+            (let ((bestMove (make-move :row 0 :col 0 :score alpha))) 
+                (dotimes (i *matrixDim*) 
+                    (dotimes (j *matrixDim*)
+                        (let ((valid (validateMove i j board))
+                              (newMove '()) 
+                               (player (playerToCurrent maxPlayer)))
+                           (cond ( (not (null valid))  
+                                   (progn
+                                     (setElement player i j board)
+                                     (uniteNeighboursComputer i j board *matrixDim* player)
+                                     (setf newMove (make-move :row i :col j :score '()))
+                                     (setf (move-score newMove) (move-score (alpha-beta-retMove (- depth 1) board newMove alpha beta (- 0 maxPlayer) (+ numMoves 1))))
+                                      (remove-move i j board *matrixDim*)
+                                     (if (> (move-score newMove) (move-score bestMove)) (setf bestMove (copy-structure newMove)))
+                                     (if (< alpha (move-score bestMove)) (setf alpha (move-score bestMove)))
+                                ) )
+                                ( (>= alpha beta) (return-from alpha-beta-retMove bestMove) ) 
+                           ) 
+                        )
+                    )
+                )
+                (return-from alpha-beta-retMove bestMove)
+            ) 
+        )
+        ( t 
+            (let ((bestMove (make-move :row 0 :col 0 :score beta))) 
+                (dotimes (i *matrixDim*) 
+                    (dotimes (j *matrixDim*)
+                        (let ((valid (validateMove i j board))
+                              (newMove '()) 
+                               (player (playerToCurrent maxPlayer)))
+                           (cond ( (not (null valid))  
+                                   (progn
+                                     (setElement player i j board)
+                                     (uniteNeighboursComputer i j board *matrixDim* player)
+                                     (setf newMove (make-move :row i :col j :score '()))
+                                     (setf (move-score newMove) (move-score (alpha-beta-retMove (- depth 1) board newMove alpha beta (- 0 maxPlayer) (+ numMoves 1))))
+                                     (remove-move i j board *matrixDim*)
+                                     (if (< (move-score newMove) (move-score bestMove)) (setf bestMove (copy-structure newMove)))
+                                     (if (> beta (move-score bestMove)) (setf beta (move-score bestMove)))
+                                ) )
+                                ( (>= alpha beta) (return-from alpha-beta-retMove bestMove) ) 
+                           ) 
+                        )
+                    )
+                )
+                (return-from alpha-beta-retMove bestMove)
+            )   
+        )
+          ))

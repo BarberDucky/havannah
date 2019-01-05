@@ -81,8 +81,9 @@
     ))
 
 (defun playMoveComputer ()
-    (let ((bestMove (negamax 3 *board* '() '-2000 '2000 1 *numMoves*)))
+    (let ((bestMove (alpha-beta 3 *board* '() '-2000 '2000 1 *numMoves*)))
       (setElement *computer* (move-row bestMove) (move-col bestMove) *board*)
+      (format t "~a~%" bestMove)
       (setq *numMoves* (+ *numMoves* 1))
       (if (equalp *numMoves* *maxNumMoves*) (setq *gameState* '2)
              (uniteNeighbours (move-row bestMove) (move-col bestMove) *board* *matrixDim* *computer*))

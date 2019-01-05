@@ -11,6 +11,7 @@
 
 (defconstant *firstPlayer* 'X)
 (defconstant *secondPlayer* 'O)
+(defconstant *edgeConnectivity* '10)
 
 (defvar *currentPlayer*)
 (setq *currentPlayer* *firstPlayer*)
